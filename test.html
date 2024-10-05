@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Robot Bobby Earth</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden; /* Hide scrollbars to keep it clean */
+      background-color: #000; /* Dark background for night effect */
+    }
+
+    /* Style for the 2D box */
+    #rect-box {
+      position: absolute;  /* Use absolute positioning */
+      bottom: 0;  /* Position it at the bottom */
+      left: 0;  /* Align to the left */
+      width: 100%;  /* Take the full width of the screen */
+      height: 280px;  /* Height of the rectangle */
+      background-color: rgba(0, 0, 0, 0.7);  /* Semi-transparent black */
+        /* White border around the rectangle */
+      z-index: 10;  /* Make sure it stays on top of the canvas */
+      color: wheat;
+      display: flex; /* Use flexbox to center content */
+      flex-direction: column; /* Stack elements vertically */
+      align-items: center; /* Center horizontally */
+      justify-content: center; /* Center vertically */
+    }
+
+    /* Make the container take the full width of its parent */
+    .container {
+      text-align: center;
+      width: 100%; /* Full width of the parent */
+      padding: 0 10px; /* Optional padding for aesthetics */
+    }
+
+    h2 {
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+    }
+
+    .weight-display {
+      font-size: 2rem;
+      margin-bottom: 10px;
+    }
+
+    .slider-container {
+      position: relative;
+      width: 100%; /* Make the slider container take full width */
+      max-width: 100%; /* Ensure slider fills the screen */
+    }
+
+    #weight-slider {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%; /* Slider takes full width of the container */
+      height: 10px;
+      background: transparent;
+      border-radius: 5px;
+      outline: none;
+      position: relative;
+      z-index: 5;
+    }
+
+    /* Custom tick marks using background gradient */
+    #weight-slider::-webkit-slider-runnable-track {
+      height: 10px;
+      background: repeating-linear-gradient(
+        to right,
+        white 0,
+        white 1px,
+        transparent 1px,
+        transparent 8px,
+        white 8px,
+        white 1px,
+        transparent 1px,
+        transparent 8px,
+        white 16px,
+        white 1px,
+        transparent 1px,
+        transparent 8px,
+        white 24px,
+        white 1px,
+        transparent 1px,
+        transparent 8px,
+        white 32px,
+        white 1px,
+        transparent 1px,
+        transparent 8px,
+        white 40px,
+        white 1px,
+        transparent 1px,
+        transparent 8px,
+        white 48px,
+        white 1px,
+        transparent 1px,
+        transparent 8px,
+        white 56px,
+        white 1px,
+        transparent 1px,
+        transparent 8px,
+        white 64px,  /* Larger tick mark */
+        white 2px,   /* Thickness of the large tick */
+        transparent 2px,
+        transparent 16px    /* Larger tick spacing */
+      );
+    }
+
+    #weight-slider::-moz-range-track {
+      background: repeating-linear-gradient(
+        to right,
+        white 0,
+        white 1px,
+        transparent 1px,
+        transparent 8px,
+        white 8px,
+        white 1px,
+        transparent 1px,
+        transparent 8px,
+        white 16px,
+        white 1px,
+        transparent 1px,
+        transparent 8px,
+        white 24px,
+        white 1px,
+        transparent 1px,
+        transparent 8px,
+        white 32px,
+        white 1px,
+        transparent 1px,
+        transparent 8px,
+        white 40px,
+        white 1px,
+        transparent 1px,
+        transparent 8px,
+        white 48px,
+        white 1px,
+        transparent 1px,
+        transparent 8px,
+        white 56px,
+        white 1px,
+        transparent 1px,
+        transparent 8px,
+        white 64px,  /* Larger tick mark */
+        white 2px,   /* Thickness of the large tick */
+        transparent 2px,
+        transparent 16px    /* Larger tick spacing */
+      );
+    }
+
+    #weight-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 15px;
+      height: 30px;
+      background: red;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
+    #weight-slider::-moz-range-thumb {
+      width: 15px;
+      height: 30px;
+      background: red;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
+    /* Red center line fixed */
+    .red-line {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      height: 30px;
+      width: 3px;
+      background-color: red;
+      transform: translateY(-50%);
+      z-index: 10;
+    }
+
+    .scale-numbers {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      max-width: 100%;
+      margin-top: 10px;
+    }
+
+    .scale-numbers span {
+      font-size: 1.2rem;
+    }
+
+    /* Ensures the WebGL canvas fits the window */
+    canvas {
+      display: block;
+      width: 100vw;
+      height: 100vh;
+    }
+  </style>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.161/build/three.module.js",
+        "jsm/": "https://cdn.jsdelivr.net/npm/three@0.161/examples/jsm/"
+      }
+    }
+  </script>
+</head>
+<body>
+  <!-- 3D Earth canvas will be injected by Three.js -->
+  
+  <!-- 2D Rectangular Box -->
+  <div id="rect-box">
+     
+
+    <!-- Slider for weight -->
+    <div class="container">
+       
+      <div class="weight-display">
+        <span id="weight-value">60</span> kg
+      </div>
+      <div class="slider-container">
+        <div class="red-line"></div> <!-- Fixed red line -->
+        <input type="range" id="weight-slider" min="59" max="61" step="0.1" value="60">
+      </div>
+      <div class="scale-numbers">
+        <span>59</span>
+        <span>60</span>
+        <span>61</span>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="index.js"></script>
+  <script>
+    const slider = document.getElementById('weight-slider');
+    const weightValue = document.getElementById('weight-value');
+
+    slider.addEventListener('input', function() {
+      weightValue.textContent = this.value;
+    });
+  </script>
+</body>
+</html>
